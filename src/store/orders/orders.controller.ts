@@ -12,7 +12,9 @@ import { OrdersService } from './orders.service';
 import { Order } from '../../common/entities/order.entity';
 import { NewOrderDto } from '../../common/dtos/NewOrder.dto';
 import { Request } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('store/orders')
 @Controller('store/orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

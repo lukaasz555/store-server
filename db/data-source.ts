@@ -11,7 +11,7 @@ export const dataSourceOptions: DataSourceOptions = {
   database: process.env.DB_NAME,
   entities: ['dist/src/common/entities/*.entity{.ts,.js}'],
   migrations: ['dist/db/migrations/*{.ts,.js}'],
-  synchronize: false,
+  synchronize: true, // ! SET TO FALSE
 };
 
 const dataSource = new DataSource(dataSourceOptions);

@@ -49,4 +49,7 @@ export class Order {
 
   @Column({ nullable: true, type: 'json' })
   deliveryAddress: Record<string, string | number>;
+
+  @Column({ nullable: true, type: 'json' })
+  discountCode: Record<string, string | number>;
 }

@@ -1,17 +1,15 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './common/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm/data-source/DataSource';
-import { mockUsers } from './admin/users/data/users.mock';
-import { Product } from './common/entities/product.entity';
-import { mockProducts } from './admin/products/data/products.mock';
-import { Order } from './common/entities/order.entity';
+// import { mockUsers } from './admin/users/data/users.mock';
+// import { mockProducts } from './admin/products/data/products.mock';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import * as dotenv from 'dotenv';
+import { dataSourceOptions } from 'db/data-source';
 import { AdminModule } from './admin/admin.module';
 import { StoreModule } from './store/store.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -20,15 +18,7 @@ dotenv.config();
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [User, Product, Order],
-      synchronize: process.env.NODE_ENV === 'production',
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     EventEmitterModule.forRoot({
       wildcard: false,
       delimiter: '.',

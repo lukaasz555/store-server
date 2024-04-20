@@ -3,7 +3,12 @@ import { Order } from '../../common/entities/order.entity';
 import { In, Repository } from 'typeorm';
 import { NewOrderDto } from '../../common/dtos/NewOrder.dto';
 import { instanceToPlain } from 'class-transformer';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderActionType } from 'src/common/enums/OrderActionType.enum';
 import { Product } from 'src/common/entities/product.entity';
@@ -18,7 +23,14 @@ export class OrdersService {
   ) {}
 
   async getOrders(): Promise<Order[]> {
-    return this.ordersRepository.find();
+    try {
+      return this.ordersRepository.find({ relations: ['products'] });
+    } catch {
+      throw new HttpException(
+        'Internal server error:(',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async getOrder(id: number): Promise<Order> {

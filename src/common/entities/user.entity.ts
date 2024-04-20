@@ -22,7 +22,7 @@ export class User {
   email: string;
 
   @Column({ select: false })
-  password: string;
+  hashedPassword: string;
 
   @CreateDateColumn()
   createdAt: Date;

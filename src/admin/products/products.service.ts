@@ -1,10 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetProductsDto } from './dto/GetProductsDto';
+import { PaginationResult } from '@/common/models/Pagination';
+import { QueryParams } from '@/common/models/QueryParams';
 
 @Injectable()
 export class ProductsService {
@@ -12,9 +14,33 @@ export class ProductsService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
   ) {}
 
-  async getProducts(): Promise<GetProductsDto[]> {
-    const products = await this.productsRepository.find();
-    return products.map((product) => new GetProductsDto(product));
+  async getProducts(
+    queryParams: QueryParams,
+  ): Promise<PaginationResult<GetProductsDto>> {
+    const { page, limit, search } = queryParams;
+    const searchParams = {
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    if (search.trim() !== '') {
+      Object.assign(searchParams, { where: { title: Like(`%${search}%`) } });
+    }
+
+    const [entities, itemsCount] = await this.productsRepository.findAndCount({
+      ...searchParams,
+    });
+
+    const result = new PaginationResult<GetProductsDto>();
+    result
+      .setItems(entities.map((product) => new GetProductsDto(product)))
+      .setItemsCount(itemsCount)
+      .setPagesCount(Math.ceil(itemsCount / limit))
+      .setPage(page)
+      .setLimit(limit)
+      .setOffset(searchParams.skip);
+
+    return result;
   }
 
   async getProduct(id: number): Promise<Product> {

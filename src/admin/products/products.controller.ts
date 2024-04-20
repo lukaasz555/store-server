@@ -6,6 +6,7 @@ import {
   Put,
   Delete,
   Body,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from '../../common/entities/product.entity';
@@ -13,6 +14,8 @@ import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { GetProductsDto } from './dto/GetProductsDto';
+import { PaginationResult } from '@/common/models/Pagination';
+import { QueryParams } from '@/common/models/QueryParams';
 
 @ApiTags('admin/products')
 @Controller('admin/products')
@@ -20,8 +23,9 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  getProducts(): Promise<GetProductsDto[]> {
-    return this.productsService.getProducts();
+  getProducts(@Query() query): Promise<PaginationResult<GetProductsDto>> {
+    const queryParams = new QueryParams(query);
+    return this.productsService.getProducts(queryParams);
   }
 
   @Get(':id')

@@ -34,8 +34,11 @@ export class ProductsController {
   }
 
   @Put(':id')
-  editProduct(product: EditProductDto): Promise<void> {
-    return this.productsService.updateProduct(product);
+  editProduct(
+    @Param('id') id: number,
+    @Body() editProductDto: EditProductDto,
+  ): Promise<void> {
+    return this.productsService.updateProduct(id, editProductDto);
   }
 
   @Delete(':id')

@@ -12,34 +12,56 @@ export class ProductsService {
   ) {}
 
   async getProducts(): Promise<Product[]> {
-    return this.productsRepository.find();
+    try {
+      return this.productsRepository.find();
+    } catch (err) {
+      throw new Error('GetProducts error');
+    }
   }
 
   async getProduct(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOneBy({ id });
-    if (product) {
-      return product;
-    } else {
-      throw new NotFoundException('Product not found');
+    try {
+      const product = await this.productsRepository.findOneBy({ id });
+      if (product) return product;
+      else throw new NotFoundException('Product not found');
+    } catch (err) {
+      throw new Error('GetProduct error');
     }
   }
 
-  async addProduct(product: AddProductDto): Promise<void> {
-    const newProduct = await this.productsRepository.create(product);
-    await this.productsRepository.save(newProduct);
-  }
-
-  async updateProduct(updatedProduct: EditProductDto): Promise<void> {
-    const product = await this.productsRepository.findOneBy({
-      id: updatedProduct.id,
-    });
-    if (product) {
-      await this.productsRepository.update(updatedProduct.id, updatedProduct);
-    } else {
-      throw new NotFoundException('Product not found');
+  async addProduct(addProductDto: AddProductDto): Promise<void> {
+    try {
+      const newProduct = this.productsRepository.create(addProductDto);
+      await this.productsRepository.save({
+        ...newProduct,
+        pricesHistory: [],
+      });
+    } catch (err) {
+      throw new Error('AddProduct error');
     }
   }
+
+  async updateProduct(
+    id: number,
+    editProductDto: EditProductDto,
+  ): Promise<void> {
+    try {
+      const product = await this.productsRepository.findOneBy({
+        id,
+      });
+      if (!product) throw new NotFoundException('Product not found');
+      await this.productsRepository.update(id, editProductDto);
+    } catch (err) {
+      throw new Error('UpdateProduct error');
+    }
+  }
+
   async deleteProduct(id: number): Promise<void> {
-    await this.productsRepository.delete(id);
+    //* It's temp solution - will be replaced with soft delete
+    try {
+      await this.productsRepository.delete(id);
+    } catch (err) {
+      throw new Error('DeleteProduct error');
+    }
   }
 }

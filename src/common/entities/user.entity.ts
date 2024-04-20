@@ -3,7 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -27,6 +27,6 @@ export class User {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => Order, (order) => order.userId)
+  @OneToOne(() => Order, (order) => order.user)
   orders: Order[];
 }

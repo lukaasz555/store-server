@@ -10,6 +10,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -18,10 +19,11 @@ export class Order {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
+  @OneToOne(() => User, (user) => user.orders)
   @Column()
   userId: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   user: User;
 

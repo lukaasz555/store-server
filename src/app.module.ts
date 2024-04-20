@@ -15,6 +15,7 @@ import { AdminModule } from './admin/admin.module';
 import { StoreModule } from './store/store.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AccountModule } from './account/account.module';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ dotenv.config();
     AdminModule,
     StoreModule,
     NotificationsModule,
+    AccountModule,
   ],
   controllers: [],
   providers: [

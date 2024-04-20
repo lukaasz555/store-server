@@ -1,9 +1,21 @@
-import { Controller, Param, Get, Post, Put, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GetProductsDto } from './dto/GetProductsDto';
+import { PaginationResult } from '@/common/models/Pagination';
+import { QueryParams } from '@/common/models/QueryParams';
 
 @ApiTags('admin/products')
 @Controller('admin/products')
@@ -11,8 +23,9 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  getProducts(): Promise<Product[]> {
-    return this.productsService.getProducts();
+  getProducts(@Query() query): Promise<PaginationResult<GetProductsDto>> {
+    const queryParams = new QueryParams(query);
+    return this.productsService.getProducts(queryParams);
   }
 
   @Get(':id')
@@ -21,13 +34,16 @@ export class ProductsController {
   }
 
   @Post()
-  addProduct(product: AddProductDto): Promise<void> {
-    return this.productsService.addProduct(product);
+  addProduct(@Body() addProductDto: AddProductDto): Promise<void> {
+    return this.productsService.addProduct(addProductDto);
   }
 
   @Put(':id')
-  editProduct(product: EditProductDto): Promise<void> {
-    return this.productsService.updateProduct(product);
+  editProduct(
+    @Param('id') id: number,
+    @Body() editProductDto: EditProductDto,
+  ): Promise<void> {
+    return this.productsService.updateProduct(id, editProductDto);
   }
 
   @Delete(':id')

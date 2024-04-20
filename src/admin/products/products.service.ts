@@ -1,9 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { GetProductsDto } from './dto/GetProductsDto';
+import { PaginationResult } from '@/common/models/Pagination';
+import { QueryParams } from '@/common/models/QueryParams';
 
 @Injectable()
 export class ProductsService {
@@ -11,35 +14,61 @@ export class ProductsService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
   ) {}
 
-  async getProducts(): Promise<Product[]> {
-    return this.productsRepository.find();
+  async getProducts(
+    queryParams: QueryParams,
+  ): Promise<PaginationResult<GetProductsDto>> {
+    const { page, limit, search } = queryParams;
+    const searchParams = {
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    if (search.trim() !== '') {
+      Object.assign(searchParams, { where: { title: Like(`%${search}%`) } });
+    }
+
+    const [entities, itemsCount] = await this.productsRepository.findAndCount({
+      ...searchParams,
+    });
+
+    const result = new PaginationResult<GetProductsDto>();
+    result
+      .setItems(entities.map((product) => new GetProductsDto(product)))
+      .setItemsCount(itemsCount)
+      .setPagesCount(Math.ceil(itemsCount / limit))
+      .setPage(page)
+      .setLimit(limit)
+      .setOffset(searchParams.skip);
+
+    return result;
   }
 
   async getProduct(id: number): Promise<Product> {
     const product = await this.productsRepository.findOneBy({ id });
-    if (product) {
-      return product;
-    } else {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
   }
 
-  async addProduct(product: AddProductDto): Promise<void> {
-    const newProduct = await this.productsRepository.create(product);
-    await this.productsRepository.save(newProduct);
-  }
-
-  async updateProduct(updatedProduct: EditProductDto): Promise<void> {
-    const product = await this.productsRepository.findOneBy({
-      id: updatedProduct.id,
+  async addProduct(addProductDto: AddProductDto): Promise<void> {
+    const newProduct = this.productsRepository.create(addProductDto);
+    await this.productsRepository.save({
+      ...newProduct,
+      pricesHistory: [],
     });
-    if (product) {
-      await this.productsRepository.update(updatedProduct.id, updatedProduct);
-    } else {
-      throw new NotFoundException('Product not found');
-    }
   }
+
+  async updateProduct(
+    id: number,
+    editProductDto: EditProductDto,
+  ): Promise<void> {
+    const product = await this.productsRepository.findOneBy({
+      id,
+    });
+    if (!product) throw new NotFoundException('Product not found');
+    await this.productsRepository.update(id, editProductDto);
+  }
+
   async deleteProduct(id: number): Promise<void> {
-    await this.productsRepository.delete(id);
+    await this.productsRepository.softDelete(id);
   }
 }

@@ -1,4 +1,8 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Module,
+  OnModuleInit,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm/data-source/DataSource';
@@ -10,6 +14,7 @@ import { dataSourceOptions } from 'db/data-source';
 import { AdminModule } from './admin/admin.module';
 import { StoreModule } from './store/store.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 dotenv.config();
 
@@ -33,7 +38,12 @@ dotenv.config();
     NotificationsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly dataSource: DataSource) {}

@@ -12,6 +12,7 @@ import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GetProductsDto } from './dto/GetProductsDto';
 
 @ApiTags('admin/products')
 @Controller('admin/products')
@@ -19,7 +20,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  getProducts(): Promise<Product[]> {
+  getProducts(): Promise<GetProductsDto[]> {
     return this.productsService.getProducts();
   }
 

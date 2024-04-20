@@ -4,6 +4,7 @@ import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { GetProductsDto } from './dto/GetProductsDto';
 
 @Injectable()
 export class ProductsService {
@@ -11,57 +12,37 @@ export class ProductsService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
   ) {}
 
-  async getProducts(): Promise<Product[]> {
-    try {
-      return this.productsRepository.find();
-    } catch (err) {
-      throw new Error('GetProducts error');
-    }
+  async getProducts(): Promise<GetProductsDto[]> {
+    const products = await this.productsRepository.find();
+    return products.map((product) => new GetProductsDto(product));
   }
 
   async getProduct(id: number): Promise<Product> {
-    try {
-      const product = await this.productsRepository.findOneBy({ id });
-      if (product) return product;
-      else throw new NotFoundException('Product not found');
-    } catch (err) {
-      throw new Error('GetProduct error');
-    }
+    const product = await this.productsRepository.findOneBy({ id });
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
   }
 
   async addProduct(addProductDto: AddProductDto): Promise<void> {
-    try {
-      const newProduct = this.productsRepository.create(addProductDto);
-      await this.productsRepository.save({
-        ...newProduct,
-        pricesHistory: [],
-      });
-    } catch (err) {
-      throw new Error('AddProduct error');
-    }
+    const newProduct = this.productsRepository.create(addProductDto);
+    await this.productsRepository.save({
+      ...newProduct,
+      pricesHistory: [],
+    });
   }
 
   async updateProduct(
     id: number,
     editProductDto: EditProductDto,
   ): Promise<void> {
-    try {
-      const product = await this.productsRepository.findOneBy({
-        id,
-      });
-      if (!product) throw new NotFoundException('Product not found');
-      await this.productsRepository.update(id, editProductDto);
-    } catch (err) {
-      throw new Error('UpdateProduct error');
-    }
+    const product = await this.productsRepository.findOneBy({
+      id,
+    });
+    if (!product) throw new NotFoundException('Product not found');
+    await this.productsRepository.update(id, editProductDto);
   }
 
   async deleteProduct(id: number): Promise<void> {
-    //* It's temp solution - will be replaced with soft delete
-    try {
-      await this.productsRepository.delete(id);
-    } catch (err) {
-      throw new Error('DeleteProduct error');
-    }
+    await this.productsRepository.softDelete(id);
   }
 }

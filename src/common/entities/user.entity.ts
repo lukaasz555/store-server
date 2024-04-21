@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { timestamp } from './../helpers/dateTime.helpers';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Order } from 'src/common/entities/order.entity';
 import {
+  BeforeInsert,
   Column,
-  CreateDateColumn,
   Entity,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -29,13 +30,18 @@ export class User {
   @Column({ select: false })
   hashedPassword: string;
 
-  @IsNotEmpty()
-  @CreateDateColumn()
-  createdAt: Date;
+  @IsString()
+  @Column()
+  createdAt: string;
 
   @Column({ type: 'json', nullable: false, default: [] })
   favoriteProductsIds: number[] = [];
 
   @OneToOne(() => Order, (order) => order.user)
   orders: Order[];
+
+  @BeforeInsert()
+  addTimestamp(): void {
+    this.createdAt = timestamp;
+  }
 }

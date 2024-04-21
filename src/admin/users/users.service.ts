@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../common/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserParams } from './types/CreateUserParams';
+import { timestamp } from '@/common/helpers/dateTime.helpers';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +32,7 @@ export class UsersService {
   async createUser(createUserParams: CreateUserParams): Promise<void> {
     const newUser = this.usersRepository.create({
       ...createUserParams,
-      createdAt: new Date(),
+      createdAt: timestamp,
     });
     await this.usersRepository.save(newUser);
   }

@@ -16,6 +16,7 @@ import { StoreModule } from './store/store.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
+// import { User } from './common/entities/user.entity';
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ export class AppModule implements OnModuleInit {
     //   mockUsers.forEach(async (user) => {
     //     await userRepository.save({
     //       ...user,
+    //       favoriteProductsIds: [],
     //       createdAt: new Date(),
     //     });
     //   });

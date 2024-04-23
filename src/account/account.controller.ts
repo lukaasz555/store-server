@@ -33,7 +33,9 @@ export class AccountController {
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto): Promise<{ token: string }> {
+  login(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<{ token: string; refreshToken: string }> {
     return this.accountService.loginUser(loginUserDto);
   }
 

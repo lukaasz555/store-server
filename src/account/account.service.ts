@@ -14,12 +14,15 @@ import { FindUserDto } from './dto/find-user.dto';
 import { getHashedPassword, validatePassword } from './helpers/auth.helpers';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshToken } from '@/common/entities/refreshToken.entity';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
     private jwtService: JwtService,
   ) {}
 
@@ -36,10 +39,14 @@ export class AccountService {
     await this.usersRepository.save(user);
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<{ token: string }> {
-    const user = await this.usersRepository.findOneBy({
-      email: loginUserDto.email,
+  async loginUser(
+    loginUserDto: LoginUserDto,
+  ): Promise<{ token: string; refreshToken: string }> {
+    const user = await this.usersRepository.findOne({
+      where: { email: loginUserDto.email },
+      relations: ['refreshTokens'],
     });
+
     if (!user) throw new NotFoundException('User not found');
 
     const isValidPassword = await validatePassword(
@@ -47,9 +54,27 @@ export class AccountService {
       user.hashedPassword,
     );
     if (!isValidPassword) throw new UnauthorizedException('Invalid password');
+
+    let refreshToken = '';
+
+    if (user.refreshTokens.some((t) => this.isTokenValid(t.token))) {
+      refreshToken = user.refreshTokens.find((t) =>
+        this.isTokenValid(t.token),
+      ).token;
+    } else {
+      refreshToken = this.generateRefreshToken(user.id);
+      const newRefreshToken = this.refreshTokenRepository.create({
+        token: refreshToken,
+        user,
+      });
+      this.refreshTokenRepository.save(newRefreshToken);
+    }
+
     const payload = { sub: user.id, email: user.email };
+
     return {
       token: await this.jwtService.signAsync(payload),
+      refreshToken,
     };
   }
 
@@ -82,4 +107,20 @@ export class AccountService {
   // remove(id: number) {
   //   return `This action removes a #${id} account`;
   // }
+  private generateRefreshToken(userId: number): string {
+    const refreshToken = this.jwtService.sign(
+      { userId },
+      {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: '7d',
+      },
+    );
+    return refreshToken;
+  }
+
+  private isTokenValid(token: string): boolean {
+    const expAt = this.jwtService.decode(token).exp;
+    if (typeof expAt !== 'number') return false;
+    return expAt > Date.now() / 1000;
+  }
 }

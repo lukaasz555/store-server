@@ -5,9 +5,11 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { RefreshToken } from './refreshToken.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -44,4 +46,7 @@ export class User {
   addTimestamp(): void {
     this.createdAt = timestamp;
   }
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
 }

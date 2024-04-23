@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Headers,
+} from '@nestjs/common';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -6,7 +14,11 @@ import { User } from '@/common/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '@/common/entities/order.entity';
+import { FindUserDto } from './dto/find-user.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { LoginUserDto } from './dto/login-user.dto';
 
+@ApiTags('account')
 @Controller('account')
 export class AccountController {
   constructor(
@@ -15,26 +27,29 @@ export class AccountController {
     private orderRepository: Repository<Order>,
   ) {}
 
-  // @Post()
-  // register(@Body() createAccountDto: CreateAccountDto): Promise<void> {
-  //   return this.accountService.register(createAccountDto);
-  // }
-
-  // @Post()
-  // login(@Body() loginUserDto: LoginUserDto): Promise<string> {
-  //   return this.accountService.login(loginUserDto);
-  // }
-
-  @Get(':id')
-  findUser(@Param('id') id: string): Promise<User> {
-    return this.accountService.findOne(+id);
+  @Post('register')
+  register(@Body() createAccountDto: CreateAccountDto): Promise<void> {
+    return this.accountService.createUser(createAccountDto);
   }
 
-  // @Patch(':id')
-  // updateUser(
-  //   @Param('id') id: string,
-  //   @Body() updateAccountDto: UpdateAccountDto,
-  // ): Promise<void> {
-  //   return this.accountService.update(+id, updateAccountDto);
-  // }
+  @Post('login')
+  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
+    return this.accountService.loginUser(loginUserDto);
+  }
+
+  @Get()
+  findUser(@Headers('userId') userId: string): Promise<FindUserDto> {
+    return this.accountService.findUser(+userId);
+  }
+
+  @Patch('')
+  updateUser(
+    @Headers('userId') id: string,
+    @Body() updateAccountDto: UpdateAccountDto,
+  ): Promise<void> {
+    // return this.accountService.update(+id, updateAccountDto);
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
 }

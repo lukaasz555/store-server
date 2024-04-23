@@ -27,7 +27,7 @@ export class User {
   email: string;
 
   @IsNotEmpty()
-  @Column({ select: false })
+  @Column()
   hashedPassword: string;
 
   @IsString()

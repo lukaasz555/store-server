@@ -13,12 +13,14 @@ import { Order } from '@/common/entities/order.entity';
 import { FindUserDto } from './dto/find-user.dto';
 import { getHashedPassword, validatePassword } from './helpers/auth.helpers';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
+    private jwtService: JwtService,
   ) {}
 
   async createUser(createAccountDto: CreateAccountDto): Promise<void> {
@@ -34,7 +36,7 @@ export class AccountService {
     await this.usersRepository.save(user);
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<string> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<{ token: string }> {
     const user = await this.usersRepository.findOneBy({
       email: loginUserDto.email,
     });
@@ -45,7 +47,10 @@ export class AccountService {
       user.hashedPassword,
     );
     if (!isValidPassword) throw new UnauthorizedException('Invalid password');
-    return 'user-token__';
+    const payload = { sub: user.id, email: user.email };
+    return {
+      token: await this.jwtService.signAsync(payload),
+    };
   }
 
   async findUser(id: number): Promise<FindUserDto> {

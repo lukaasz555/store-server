@@ -33,7 +33,7 @@ export class AccountController {
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
+  login(@Body() loginUserDto: LoginUserDto): Promise<{ token: string }> {
     return this.accountService.loginUser(loginUserDto);
   }
 

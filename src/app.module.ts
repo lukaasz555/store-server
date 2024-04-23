@@ -7,9 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm/data-source/DataSource';
 import { mockUsers } from './admin/users/data/users.mock';
-// import { mockProducts } from './admin/products/data/products.mock';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import * as dotenv from 'dotenv';
 import { dataSourceOptions } from 'db/data-source';
 import { AdminModule } from './admin/admin.module';
 import { StoreModule } from './store/store.module';
@@ -17,8 +15,6 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
 import { User } from './common/entities/user.entity';
-
-dotenv.config();
 
 @Module({
   imports: [

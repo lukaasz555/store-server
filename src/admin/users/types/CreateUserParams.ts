@@ -1,6 +1,6 @@
 export type CreateUserParams = {
   email: string;
-  password: string;
+  hashedPassword: string;
   name?: string;
   lastname?: string;
 };

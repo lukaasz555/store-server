@@ -5,4 +5,5 @@ export const swaggerConfig = new DocumentBuilder()
   .setDescription('Store API 1.0')
   .setVersion('1.0')
   .setBasePath('api/v1')
+  .addBearerAuth(undefined, 'defaultBearerAuth')
   .build();

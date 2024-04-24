@@ -23,7 +23,7 @@ export class ProductsService {
       take: limit,
     };
 
-    if (search.trim() !== '') {
+    if (search) {
       Object.assign(searchParams, { where: { title: Like(`%${search}%`) } });
     }
 

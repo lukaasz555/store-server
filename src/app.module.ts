@@ -6,17 +6,15 @@ import {
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm/data-source/DataSource';
-// import { mockUsers } from './admin/users/data/users.mock';
-// import { mockProducts } from './admin/products/data/products.mock';
+import { mockUsers } from './admin/users/data/users.mock';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import * as dotenv from 'dotenv';
 import { dataSourceOptions } from 'db/data-source';
 import { AdminModule } from './admin/admin.module';
 import { StoreModule } from './store/store.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-
-dotenv.config();
+import { AccountModule } from './account/account.module';
+import { User } from './common/entities/user.entity';
 
 @Module({
   imports: [
@@ -36,6 +34,7 @@ dotenv.config();
     AdminModule,
     StoreModule,
     NotificationsModule,
+    AccountModule,
   ],
   controllers: [],
   providers: [
@@ -53,18 +52,18 @@ export class AppModule implements OnModuleInit {
   }
 
   private async checkUsersCount(): Promise<void> {
-    // const userRepository = this.dataSource.getRepository(User);
+    const userRepository = this.dataSource.getRepository(User);
     // const productsRepository = this.dataSource.getRepository(Product);
-    // const usersCount = await userRepository.count();
+    const usersCount = await userRepository.count();
     // const productsCount = await productsRepository.count();
-    // if (usersCount === 0) {
-    //   mockUsers.forEach(async (user) => {
-    //     await userRepository.save({
-    //       ...user,
-    //       createdAt: new Date(),
-    //     });
-    //   });
-    // }
+    if (usersCount === 0) {
+      mockUsers.forEach(async (user) => {
+        await userRepository.save({
+          ...user,
+          favoriteProductsIds: [],
+        });
+      });
+    }
     // if (productsCount === 0) {
     //   mockProducts.forEach(async (p) => {
     //     await productsRepository.save(p);

@@ -6,12 +6,11 @@ import {
   HttpStatus,
   Param,
   Post,
-  Req,
+  Headers,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { Order } from '../../common/entities/order.entity';
 import { NewOrderDto } from '../../common/dtos/NewOrder.dto';
-import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('store/orders')
@@ -20,11 +19,19 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  getOrders(@Req() request: Request): Promise<Order[]> {
-    const userId = request.headers['userid'];
-    if (userId) {
+  getOrders(@Headers('userId') userId: number): Promise<Order[]> {
+    if (!isNaN(userId)) {
       return this.ordersService.getOrders(Number(userId));
     } else {
+      if (isNaN(userId)) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'User ID must be a number',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -41,7 +48,10 @@ export class OrdersController {
   }
 
   @Post()
-  createOrder(@Body() order: NewOrderDto): Promise<void> {
+  createOrder(
+    @Headers('userId') id: string,
+    @Body() order: NewOrderDto,
+  ): Promise<void> {
     return this.ordersService.createOrder(order);
   }
 

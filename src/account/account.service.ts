@@ -67,7 +67,8 @@ export class AccountService {
         token: refreshToken,
         user,
       });
-      this.refreshTokenRepository.save(newRefreshToken);
+      await this.refreshTokenRepository.delete({ user });
+      await this.refreshTokenRepository.save(newRefreshToken);
     }
 
     const payload = { sub: user.id, email: user.email };
@@ -112,7 +113,7 @@ export class AccountService {
       { userId },
       {
         secret: process.env.REFRESH_TOKEN_SECRET,
-        expiresIn: '7d',
+        expiresIn: '1d',
       },
     );
     return refreshToken;

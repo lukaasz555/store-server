@@ -3,4 +3,5 @@ export enum OrderActionType {
   UPDATED = 'updated',
   DELETED = 'deleted',
   CANCELLED = 'cancelled',
+  TESTORDER = 'test',
 }

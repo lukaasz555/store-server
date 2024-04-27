@@ -67,4 +67,11 @@ export class OrdersService {
     order.status = OrderStatusEnum.CANCELLED;
     await this.ordersRepository.save(order);
   }
+
+  async sseTest(): Promise<void> {
+    console.log('sse test');
+    this.eventEmitter.emit(OrderActionType.TESTORDER, {
+      test: 'test notification',
+    });
+  }
 }

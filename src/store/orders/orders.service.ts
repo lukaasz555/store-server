@@ -55,7 +55,7 @@ export class OrdersService {
     await this.ordersRepository.save(newOrderToSave);
     const notification = new Notification(
       OrderActionType.CREATED,
-      JSON.parse(JSON.stringify(newOrderToSave)),
+      newOrderToSave,
     );
     this.eventEmitter.emit('notification', notification);
   }
@@ -71,6 +71,8 @@ export class OrdersService {
     }
     order.status = OrderStatusEnum.CANCELLED;
     await this.ordersRepository.save(order);
+    const notification = new Notification(OrderActionType.CANCELLED, order);
+    this.eventEmitter.emit('notification', notification);
   }
 
   async sseTest(): Promise<void> {
@@ -81,8 +83,5 @@ export class OrdersService {
     });
 
     this.eventEmitter.emit('notification', notification);
-    // this.eventEmitter.emit(OrderActionType.TESTORDER, {
-    //   testMessage: 'test notification',
-    // });
   }
 }

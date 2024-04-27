@@ -2,9 +2,9 @@ import { OrderActionType } from '../enums/OrderActionType.enum';
 
 export class Notification {
   type: OrderActionType;
-  payload: Record<string, unknown>;
+  payload: unknown;
 
-  constructor(type: OrderActionType, payload: Record<string, unknown>) {
+  constructor(type: OrderActionType, payload: unknown) {
     this.type = type;
     this.payload = payload;
   }

@@ -12,6 +12,8 @@ import { OrdersService } from './orders.service';
 import { Order } from '../../common/entities/order.entity';
 import { NewOrderDto } from '../../common/dtos/NewOrder.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GetOrdersDto } from './dto/GetOrders.dto';
+import { GetOrderDto } from './dto/GetOrder.dto';
 
 @ApiTags('store/orders')
 @Controller('store/orders')
@@ -19,7 +21,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  getOrders(@Headers('userId') userId: number): Promise<Order[]> {
+  getOrders(@Headers('userId') userId: number): Promise<GetOrdersDto[]> {
     if (!isNaN(userId)) {
       return this.ordersService.getOrders(Number(userId));
     } else {
@@ -43,8 +45,11 @@ export class OrdersController {
   }
 
   @Get(':id')
-  getOrder(@Param('id') id: number): Promise<Order> {
-    return this.ordersService.getOrder(id);
+  getOrder(
+    @Headers('userId') userId: number,
+    @Param('id') orderId: number,
+  ): Promise<GetOrderDto> {
+    return this.ordersService.getOrder(userId, orderId);
   }
 
   @Post()

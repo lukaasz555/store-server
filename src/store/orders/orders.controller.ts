@@ -55,5 +55,11 @@ export class OrdersController {
     return this.ordersService.createOrder(order);
   }
 
-  // TODO: add cancel order endpoint
+  @Post('/cancel/:id')
+  cancelOrder(
+    @Headers('userId') userId: number,
+    @Param('id') orderId: number,
+  ): Promise<void> {
+    return this.ordersService.cancelOrder(userId, orderId);
+  }
 }

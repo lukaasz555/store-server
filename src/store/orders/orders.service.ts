@@ -2,12 +2,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { NewOrderDto } from '../../common/dtos/NewOrder.dto';
 import { instanceToPlain } from 'class-transformer';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderActionType } from 'src/common/enums/OrderActionType.enum';
 import { Order } from 'src/common/entities/order.entity';
 import { Product } from 'src/common/entities/product.entity';
 import { OrderFactory } from 'src/common/factories/order.factory';
+import { OrderStatusEnum } from '@/common/enums/OrderStatus.enum';
 
 @Injectable()
 export class OrdersService {
@@ -16,8 +21,6 @@ export class OrdersService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
     private eventEmitter: EventEmitter2,
   ) {}
-
-  // TODO: cancel order method
 
   async getOrders(userId: number): Promise<Order[]> {
     const orders = await this.ordersRepository.find({
@@ -56,5 +59,18 @@ export class OrdersService {
       action: OrderActionType.DELETED,
       payload: orderId,
     });
+  }
+
+  async cancelOrder(userId: number, orderId: number): Promise<void> {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId, userId },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status === OrderStatusEnum.CANCELLED) {
+      throw new BadRequestException('Order already cancelled');
+    }
+    order.status = OrderStatusEnum.CANCELLED;
+    await this.ordersRepository.save(order);
   }
 }

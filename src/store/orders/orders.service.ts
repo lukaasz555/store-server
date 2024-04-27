@@ -15,6 +15,7 @@ import { OrderFactory } from 'src/common/factories/order.factory';
 import { OrderStatusEnum } from '@/common/enums/OrderStatus.enum';
 import { GetOrderDto } from './dto/GetOrder.dto';
 import { GetOrdersDto } from './dto/GetOrders.dto';
+import { Notification } from '@/common/models/Notification';
 
 @Injectable()
 export class OrdersService {
@@ -52,7 +53,11 @@ export class OrdersService {
     );
 
     await this.ordersRepository.save(newOrderToSave);
-    this.eventEmitter.emit(OrderActionType.CREATED, newOrderToSave);
+    const notification = new Notification(
+      OrderActionType.CREATED,
+      JSON.parse(JSON.stringify(newOrderToSave)),
+    );
+    this.eventEmitter.emit('notification', notification);
   }
 
   async cancelOrder(userId: number, orderId: number): Promise<void> {
@@ -70,8 +75,14 @@ export class OrdersService {
 
   async sseTest(): Promise<void> {
     console.log('sse test');
-    this.eventEmitter.emit(OrderActionType.TESTORDER, {
-      test: 'test notification',
+
+    const notification = new Notification(OrderActionType.TESTORDER, {
+      testMessage: 'test notification123',
     });
+
+    this.eventEmitter.emit('notification', notification);
+    // this.eventEmitter.emit(OrderActionType.TESTORDER, {
+    //   testMessage: 'test notification',
+    // });
   }
 }

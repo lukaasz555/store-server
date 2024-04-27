@@ -10,5 +10,6 @@ export class NotificationsService {
   @OnEvent(OrderActionType.CREATED)
   async notifyUser(payload: Order): Promise<void> {
     console.log('Order created', payload);
+    // push notification to front/admin
   }
 }

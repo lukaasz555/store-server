@@ -8,5 +8,6 @@ import { NotificationsService } from './notifications.service';
   controllers: [NotificationsController],
   imports: [TypeOrmModule.forFeature([OrderNotification])],
   providers: [NotificationsService],
+  exports: [NotificationsService],
 })
 export class NotificationsModule {}

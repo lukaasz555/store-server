@@ -24,7 +24,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
     @InjectRepository(Product) private productsRepository: Repository<Product>,
-    private readonly notificationsService: NotificationsService,
+    private notificationsService: NotificationsService,
     private eventEmitter: EventEmitter2,
   ) {}
 

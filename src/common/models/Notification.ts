@@ -1,15 +1,17 @@
-import { OrderActionType } from '../enums/OrderActionType.enum';
+import { NotificationActionEnum } from '../enums/NotificationAction.enum';
 
-export class Notification {
-  type: OrderActionType;
-  payload: unknown;
+export class Notification<T> {
+  type: NotificationActionEnum;
+  item: T;
+  createdAt = new Date();
+  readAt: Date | null = null;
 
-  constructor(type: OrderActionType, payload: unknown) {
+  constructor(type: NotificationActionEnum, item: T) {
     this.type = type;
-    this.payload = payload;
+    this.item = item;
   }
 
   toString(): string {
-    return JSON.stringify({ type: this.type, payload: this.payload });
+    return JSON.stringify({ type: this.type, payload: this.item });
   }
 }

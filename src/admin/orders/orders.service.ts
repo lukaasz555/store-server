@@ -34,7 +34,10 @@ export class OrdersService {
   }
 
   async getOrder(id: number): Promise<Order> {
-    const order = await this.ordersRepository.findOneBy({ id });
+    const order = await this.ordersRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
     if (order) {
       return order;
     } else {

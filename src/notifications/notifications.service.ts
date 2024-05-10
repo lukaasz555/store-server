@@ -1,15 +1,20 @@
+import { OrderNotification } from '@/common/entities/OrderNotification.entity';
 import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { Order } from 'src/common/entities/order.entity';
-import { OrderActionType } from 'src/common/enums/OrderActionType.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class NotificationsService {
-  constructor() {}
+  constructor(
+    @InjectRepository(OrderNotification)
+    private notificationsRepository: Repository<OrderNotification>,
+  ) {}
 
-  @OnEvent(OrderActionType.CREATED)
-  async notifyUser(payload: Order): Promise<void> {
-    console.log('Order created', payload);
-    // push notification to front/admin
+  async createNotification(notification: OrderNotification): Promise<void> {
+    await this.notificationsRepository.save(notification);
+  }
+
+  async markAsRead(notificationIds: number[]): Promise<void> {
+    // ...
   }
 }

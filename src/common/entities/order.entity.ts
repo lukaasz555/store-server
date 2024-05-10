@@ -10,9 +10,11 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { OrderNotification } from './OrderNotification.entity';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -54,4 +56,10 @@ export class Order {
 
   @Column({ nullable: true, type: 'json' })
   discountCode: Record<string, string | number>;
+
+  @OneToMany(() => OrderNotification, (notification) => notification.order)
+  notifications: OrderNotification[];
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

@@ -10,9 +10,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { OrderActionType } from 'src/common/enums/OrderActionType.enum';
 import { Product } from 'src/common/entities/product.entity';
 import { OrderFactory } from 'src/common/factories/order.factory';
+import { NotificationActionEnum } from '@/common/enums/NotificationAction.enum';
 
 @Injectable()
 export class OrdersService {
@@ -34,7 +34,10 @@ export class OrdersService {
   }
 
   async getOrder(id: number): Promise<Order> {
-    const order = await this.ordersRepository.findOneBy({ id });
+    const order = await this.ordersRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
     if (order) {
       return order;
     } else {
@@ -56,8 +59,8 @@ export class OrdersService {
 
   async deleteOrder(orderId: number): Promise<void> {
     await this.ordersRepository.delete({ id: orderId });
-    this.eventEmitter.emit(OrderActionType.DELETED, {
-      action: OrderActionType.DELETED,
+    this.eventEmitter.emit(NotificationActionEnum.ORDER_DELETED, {
+      action: NotificationActionEnum.ORDER_DELETED,
       payload: orderId,
     });
   }

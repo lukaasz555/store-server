@@ -1,6 +1,21 @@
-import { Controller } from '@nestjs/common';
+import { Controller, MessageEvent, Sse } from '@nestjs/common';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ApiTags } from '@nestjs/swagger';
+import { Observable, fromEvent, map } from 'rxjs';
+import { Notification } from '@/common/models/Notification';
 
-@ApiTags('admin/notifications')
-@Controller('admin/notifications')
-export class NotificationsController {}
+@ApiTags('notifications')
+@Controller('notifications')
+export class NotificationsController {
+  constructor(private readonly eventEmitter: EventEmitter2) {}
+
+  @Sse('events')
+  @OnEvent('notification')
+  pushNotification(): Observable<MessageEvent> {
+    return fromEvent(this.eventEmitter, 'notification').pipe(
+      map((payload: Notification<unknown>) => ({
+        data: payload.toString(),
+      })),
+    );
+  }
+}

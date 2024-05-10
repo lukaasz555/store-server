@@ -20,6 +20,11 @@ import { GetOrderDto } from './dto/GetOrder.dto';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @Get('/ssetest')
+  sseTest(): Promise<void> {
+    return this.ordersService.sseTest();
+  }
+
   @Get()
   getOrders(@Headers('userId') userId: number): Promise<GetOrdersDto[]> {
     if (!isNaN(userId)) {

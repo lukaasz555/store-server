@@ -8,19 +8,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { OrderActionType } from 'src/common/enums/OrderActionType.enum';
+import { NotificationActionEnum } from '@/common/enums/NotificationAction.enum';
 import { Order } from 'src/common/entities/order.entity';
 import { Product } from 'src/common/entities/product.entity';
 import { OrderFactory } from 'src/common/factories/order.factory';
 import { OrderStatusEnum } from '@/common/enums/OrderStatus.enum';
 import { GetOrderDto } from './dto/GetOrder.dto';
 import { GetOrdersDto } from './dto/GetOrders.dto';
+import { Notification } from '@/common/models/Notification';
+import { NotificationsService } from '@/notifications/notifications.service';
+import { OrderNotification } from '@/common/entities/OrderNotification.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
     @InjectRepository(Product) private productsRepository: Repository<Product>,
+    private notificationsService: NotificationsService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -52,7 +56,18 @@ export class OrdersService {
     );
 
     await this.ordersRepository.save(newOrderToSave);
-    this.eventEmitter.emit(OrderActionType.CREATED, newOrderToSave);
+    const notification = new Notification<Order>(
+      NotificationActionEnum.ORDER_CREATED,
+      newOrderToSave,
+    );
+
+    const orderNotification = new OrderNotification();
+    orderNotification.type = notification.type;
+    orderNotification.createdAt = notification.createdAt;
+    orderNotification.order = newOrderToSave;
+    this.notificationsService.createNotification(orderNotification);
+
+    this.eventEmitter.emit('notification', notification);
   }
 
   async cancelOrder(userId: number, orderId: number): Promise<void> {
@@ -66,5 +81,30 @@ export class OrdersService {
     }
     order.status = OrderStatusEnum.CANCELLED;
     await this.ordersRepository.save(order);
+    const notification = new Notification<Order>(
+      NotificationActionEnum.ORDER_CANCELLED,
+      order,
+    );
+
+    const orderNotification = new OrderNotification();
+    orderNotification.type = notification.type;
+    orderNotification.createdAt = notification.createdAt;
+    orderNotification.order = order;
+    this.notificationsService.createNotification(orderNotification);
+
+    this.eventEmitter.emit('notification', notification);
+  }
+
+  async sseTest(): Promise<void> {
+    console.log('sse test in service');
+
+    const notification = new Notification<{ [key: string]: string }>(
+      NotificationActionEnum.ORDER_TEST,
+      {
+        testMessage: 'test notification123',
+      },
+    );
+
+    this.eventEmitter.emit('notification', notification);
   }
 }

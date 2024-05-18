@@ -1,8 +1,10 @@
 import {
   ClassSerializerInterceptor,
+  MiddlewareConsumer,
   Module,
   NestModule,
   OnModuleInit,
+  RequestMethod,
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -16,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
 import { User } from './common/entities/user.entity';
+import { LoggingMiddleware } from './common/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -45,6 +48,10 @@ import { User } from './common/entities/user.entity';
     },
   ],
 })
-export class AppModule implements OnModuleInit {
-  constructor(private readonly dataSource: DataSource) {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggingMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
 }

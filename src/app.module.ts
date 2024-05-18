@@ -1,6 +1,7 @@
 import {
   ClassSerializerInterceptor,
   Module,
+  NestModule,
   OnModuleInit,
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -46,28 +47,4 @@ import { User } from './common/entities/user.entity';
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly dataSource: DataSource) {}
-
-  async onModuleInit(): Promise<void> {
-    this.checkUsersCount();
-  }
-
-  private async checkUsersCount(): Promise<void> {
-    const userRepository = this.dataSource.getRepository(User);
-    // const productsRepository = this.dataSource.getRepository(Product);
-    const usersCount = await userRepository.count();
-    // const productsCount = await productsRepository.count();
-    if (usersCount === 0) {
-      mockUsers.forEach(async (user) => {
-        await userRepository.save({
-          ...user,
-          favoriteProductsIds: [],
-        });
-      });
-    }
-    // if (productsCount === 0) {
-    //   mockProducts.forEach(async (p) => {
-    //     await productsRepository.save(p);
-    //   });
-    // }
-  }
 }

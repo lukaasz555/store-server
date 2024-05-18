@@ -1,7 +1,10 @@
 import {
   ClassSerializerInterceptor,
+  MiddlewareConsumer,
   Module,
+  NestModule,
   OnModuleInit,
+  RequestMethod,
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -15,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
 import { User } from './common/entities/user.entity';
+import { LoggingMiddleware } from './common/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -44,30 +48,10 @@ import { User } from './common/entities/user.entity';
     },
   ],
 })
-export class AppModule implements OnModuleInit {
-  constructor(private readonly dataSource: DataSource) {}
-
-  async onModuleInit(): Promise<void> {
-    this.checkUsersCount();
-  }
-
-  private async checkUsersCount(): Promise<void> {
-    const userRepository = this.dataSource.getRepository(User);
-    // const productsRepository = this.dataSource.getRepository(Product);
-    const usersCount = await userRepository.count();
-    // const productsCount = await productsRepository.count();
-    if (usersCount === 0) {
-      mockUsers.forEach(async (user) => {
-        await userRepository.save({
-          ...user,
-          favoriteProductsIds: [],
-        });
-      });
-    }
-    // if (productsCount === 0) {
-    //   mockProducts.forEach(async (p) => {
-    //     await productsRepository.save(p);
-    //   });
-    // }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggingMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

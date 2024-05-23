@@ -31,17 +31,11 @@ export class Product {
   // @Column()
   // logs: Log[];
 
-  @Column({ nullable: false, type: 'json' })
-  pricePLN: PricePLN;
+  @Column({ nullable: false })
+  price: number;
 
-  @Column({ nullable: true, type: 'json' })
-  priceEUR: PriceEUR;
-
-  @Column({ type: 'json', nullable: false, default: [] })
-  pricesHistory: Price[];
-
-  @Column({ nullable: false, type: 'json' })
-  purchasePrice: PurchasePrice;
+  @Column({ nullable: false })
+  purchasePriceInPLN: number;
 
   @Column({ default: 0 })
   taxRate: number;
@@ -51,7 +45,4 @@ export class Product {
 
   @Column({ default: null })
   discountValuePLN: number | null;
-
-  @Column({ default: null })
-  discountValueEUR: number | null;
 }

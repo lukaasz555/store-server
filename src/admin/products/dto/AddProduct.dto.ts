@@ -17,10 +17,6 @@ export class AddProductDto {
   @IsNotEmpty()
   stock: number;
 
-  // @IsNumber()
-  // @IsNotEmpty()
-  // categoryId: number;
-
   @IsNotEmpty()
   @IsObject()
   description: DescriptionType;

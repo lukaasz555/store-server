@@ -1,8 +1,4 @@
 import { DescriptionType } from '@/common/entities/product.entity';
-import { PriceEUR } from '@/common/models/PriceEUR';
-import { PricePLN } from '@/common/models/PricePLN';
-import { PurchasePrice } from '@/common/models/PurchasePrice';
-import { Type } from 'class-transformer';
 import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 
 export class EditProductDto {
@@ -19,16 +15,7 @@ export class EditProductDto {
   description: DescriptionType;
 
   @IsOptional()
-  @Type(() => PricePLN)
-  pricePLN: PricePLN;
-
-  @IsOptional()
-  @Type(() => PriceEUR)
-  priceEUR: PriceEUR;
-
-  @IsOptional()
-  @Type(() => PurchasePrice)
-  purchasePrice = new PurchasePrice();
+  price: number;
 
   @IsOptional()
   @IsNumber()

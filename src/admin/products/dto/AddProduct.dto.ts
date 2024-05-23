@@ -1,8 +1,4 @@
 import { DescriptionType } from '@/common/entities/product.entity';
-import { PriceEUR } from '@/common/models/PriceEUR';
-import { PricePLN } from '@/common/models/PricePLN';
-import { PurchasePrice } from '@/common/models/PurchasePrice';
-import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNotEmptyObject,
@@ -30,16 +26,10 @@ export class AddProductDto {
   description: DescriptionType;
 
   @IsNotEmptyObject()
-  @Type(() => PricePLN)
-  pricePLN: PricePLN;
-
-  @IsOptional()
-  @Type(() => PriceEUR)
-  priceEUR: PriceEUR;
+  price: number;
 
   @IsNotEmpty()
-  @Type(() => PurchasePrice)
-  purchasePrice = new PurchasePrice();
+  purchasePrice: number;
 
   @IsNotEmpty()
   @IsNumber()

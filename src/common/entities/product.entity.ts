@@ -1,8 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { PricePLN } from '../models/PricePLN';
-import { PriceEUR } from '../models/PriceEUR';
-import { Price } from '../models/Price';
-import { PurchasePrice } from '../models/PurchasePrice';
 
 export type DescriptionType = Record<
   string,

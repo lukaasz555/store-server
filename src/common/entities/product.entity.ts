@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Category } from './category.entity';
 
 export type DescriptionType = Record<
   string,
@@ -19,9 +27,9 @@ export class Product {
   @Column({ nullable: false, type: 'json' })
   description: DescriptionType;
 
-  // TODO: Add relation when Category entity is ready
-  // @Column()
-  // categoryId: number;
+  @ManyToOne(() => Category, { nullable: false })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
   // TODO: Add when Log entity is ready
   // @Column()
@@ -41,4 +49,7 @@ export class Product {
 
   @Column({ default: null })
   discountValuePLN: number | null;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

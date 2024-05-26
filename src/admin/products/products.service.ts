@@ -7,6 +7,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetProductsDto } from './dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
+import { GetProductDto } from './dto/GetProductDto';
 
 @Injectable()
 export class ProductsService {
@@ -29,6 +30,7 @@ export class ProductsService {
 
     const [entities, itemsCount] = await this.productsRepository.findAndCount({
       ...searchParams,
+      relations: ['category'],
     });
 
     const result = new PaginationResult<GetProductsDto>();
@@ -43,10 +45,14 @@ export class ProductsService {
     return result;
   }
 
-  async getProduct(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOneBy({ id });
+  async getProduct(id: number): Promise<GetProductDto> {
+    const product = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+    const productDto = new GetProductDto(product);
+    return productDto;
   }
 
   async addProduct(addProductDto: AddProductDto): Promise<void> {

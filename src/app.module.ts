@@ -19,6 +19,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
 import { User } from './common/entities/user.entity';
 import { LoggingMiddleware } from './common/middlewares/logging.middleware';
+import { CategoriesModule } from './admin/categories/categories.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { LoggingMiddleware } from './common/middlewares/logging.middleware';
     StoreModule,
     NotificationsModule,
     AccountModule,
+    CategoriesModule,
   ],
   controllers: [],
   providers: [

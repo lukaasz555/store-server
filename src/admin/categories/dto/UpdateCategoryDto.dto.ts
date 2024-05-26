@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import { CreateCategoryDto } from './CreateCategory.dto';
+import { CategoryDto } from './Category.dto';
 
-export class UpdateCategoryDto extends CreateCategoryDto {
+export class UpdateCategoryDto extends CategoryDto {
   @IsNumber()
   @IsNotEmpty()
   id = 0;

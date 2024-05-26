@@ -1,11 +1,3 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { CategoryDto } from './Category.dto';
 
-export class CreateCategoryDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  parentCategoryId = 0;
-}
+export class CreateCategoryDto extends CategoryDto {}

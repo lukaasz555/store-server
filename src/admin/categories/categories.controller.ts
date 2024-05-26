@@ -18,11 +18,6 @@ import { UpdateCategoryDto } from './dto/UpdateCategoryDto.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Get('/update')
-  updateCategories(): Promise<void> {
-    return this.categoriesService.updateCategories();
-  }
-
   @Get()
   getCategories(): Promise<Category[]> {
     return this.categoriesService.getCategories();
@@ -30,7 +25,6 @@ export class CategoriesController {
 
   @Post()
   createCategory(@Body() dto: CreateCategoryDto): Promise<void> {
-    console.log('body dto in controller', dto);
     return this.categoriesService.createCategory(dto);
   }
 
@@ -39,12 +33,6 @@ export class CategoriesController {
     @Param('id') categoryId: number,
     @Body() dto: UpdateCategoryDto,
   ): Promise<void> {
-    console.log(
-      'object dto updateCategory controller',
-      dto,
-      ' paramId',
-      categoryId,
-    );
     return this.categoriesService.updateCategory(categoryId, dto);
   }
 

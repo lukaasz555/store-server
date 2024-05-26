@@ -14,21 +14,6 @@ export class CategoriesService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
   ) {}
 
-  async updateCategories(): Promise<void> {
-    // const products = await this.productsRepository.find();
-    // const categories = await this.categoriesRepository.find();
-    // for (const [index, product] of products.entries()) {
-    //   product.category = index % 2 === 0 ? categories[0] : categories[1];
-    //   await this.productsRepository.save(product);
-    // }
-    // categories.forEach(async (c) => {
-    //   if (!c.parentCategory) {
-    //     c.parentCategory = null;
-    //     await this.categoriesRepository.save(c);
-    //   }
-    // });
-  }
-
   async getCategories(): Promise<Category[]> {
     return await this.categoriesRepository.find();
   }
@@ -42,10 +27,6 @@ export class CategoriesService {
     newCategory.name = dto.name;
     newCategory.parentCategory = parentCategory ? parentCategory : null;
     await this.categoriesRepository.save(newCategory);
-  }
-
-  async deleteCategory(id: number): Promise<void> {
-    await this.categoriesRepository.softDelete(id);
   }
 
   async updateCategory(
@@ -71,5 +52,9 @@ export class CategoriesService {
 
     category.name = dto.name;
     await this.categoriesRepository.save(category);
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    await this.categoriesRepository.softDelete(id);
   }
 }

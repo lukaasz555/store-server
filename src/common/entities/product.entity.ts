@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -48,4 +49,7 @@ export class Product {
 
   @Column({ default: null })
   discountValuePLN: number | null;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -17,4 +18,7 @@ export class Category {
   @ManyToOne(() => Category, { nullable: true })
   @JoinColumn({ name: 'parentCategoryId' })
   parentCategory: Category;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

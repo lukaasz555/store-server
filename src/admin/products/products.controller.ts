@@ -9,13 +9,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from '../../common/entities/product.entity';
 import { AddProductDto } from './dto/AddProduct.dto';
 import { EditProductDto } from './dto/EditProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { GetProductsDto } from './dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
+import { GetProductDto } from './dto/GetProductDto';
 
 @ApiTags('admin/products')
 @Controller('admin/products')
@@ -29,7 +29,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  getProduct(@Param('id') id: number): Promise<Product> {
+  getProduct(@Param('id') id: number): Promise<GetProductDto> {
     return this.productsService.getProduct(id);
   }
 

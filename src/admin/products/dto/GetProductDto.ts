@@ -1,4 +1,4 @@
-import { Category } from '@/common/entities/category.entity';
+// import { Category } from '@/common/entities/category.entity';
 import { DescriptionType, Product } from '@/common/entities/product.entity';
 
 export class GetProductDto {
@@ -10,7 +10,7 @@ export class GetProductDto {
   price: number;
   discountValueInPercent: number | null;
   discountValuePLN: number | null;
-  category = new Category();
+  categoryId = 0;
   description: DescriptionType = {};
 
   constructor(product: Product) {
@@ -22,7 +22,8 @@ export class GetProductDto {
     this.taxRate = product.taxRate;
     this.discountValueInPercent = product.discountValueInPercent;
     this.discountValuePLN = product.discountValuePLN;
-    this.category = product.category;
+    // this.category = product.category;
+    this.categoryId = product.category.id;
     this.description = product.description;
   }
 }

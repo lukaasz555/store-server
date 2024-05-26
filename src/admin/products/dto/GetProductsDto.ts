@@ -1,4 +1,3 @@
-import { Category } from '@/common/entities/category.entity';
 import { Product } from '@/common/entities/product.entity';
 
 export class GetProductsDto {
@@ -6,13 +5,13 @@ export class GetProductsDto {
   title: string;
   stock: number;
   price: number;
-  category = new Category();
+  categoryId = 0;
 
   constructor(product: Product) {
     this.id = product.id;
     this.title = product.title;
     this.stock = product.stock;
     this.price = product.price;
-    this.category = product.category;
+    this.categoryId = product.category.id;
   }
 }

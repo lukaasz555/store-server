@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Category } from './category.entity';
 
 export type DescriptionType = Record<
@@ -20,7 +26,8 @@ export class Product {
   @Column({ nullable: false, type: 'json' })
   description: DescriptionType;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  @ManyToOne(() => Category, { nullable: false })
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 
   // TODO: Add when Log entity is ready

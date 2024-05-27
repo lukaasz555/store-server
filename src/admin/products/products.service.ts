@@ -8,11 +8,14 @@ import { GetProductsDto } from './dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
 import { GetProductDto } from './dto/GetProductDto';
+import { Category } from '@/common/entities/category.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private productsRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   async getProducts(
@@ -57,6 +60,14 @@ export class ProductsService {
 
   async addProduct(addProductDto: AddProductDto): Promise<void> {
     const newProduct = this.productsRepository.create(addProductDto);
+    const category = await this.categoryRepository.findOne({
+      where: { id: addProductDto.categoryId },
+    });
+
+    if (!category) throw new NotFoundException('Category not found');
+
+    newProduct.category = category;
+
     await this.productsRepository.save({
       ...newProduct,
       pricesHistory: [],

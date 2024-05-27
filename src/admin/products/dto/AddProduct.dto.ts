@@ -1,7 +1,6 @@
 import { DescriptionType } from '@/common/entities/product.entity';
 import {
   IsNotEmpty,
-  IsNotEmptyObject,
   IsNumber,
   IsObject,
   IsOptional,
@@ -21,11 +20,11 @@ export class AddProductDto {
   @IsObject()
   description: DescriptionType;
 
-  @IsNotEmptyObject()
+  @IsNumber()
   price: number;
 
   @IsNotEmpty()
-  purchasePrice: number;
+  purchasePriceInPLN: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -42,4 +41,7 @@ export class AddProductDto {
   @IsOptional()
   @IsNumber()
   discountValueEUR: number | null;
+
+  @IsNumber()
+  categoryId: number;
 }

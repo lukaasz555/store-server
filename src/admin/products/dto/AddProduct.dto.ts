@@ -38,10 +38,6 @@ export class AddProductDto {
   @IsNumber()
   discountValuePLN: number | null;
 
-  @IsOptional()
-  @IsNumber()
-  discountValueEUR: number | null;
-
   @IsNumber()
   categoryId: number;
 }

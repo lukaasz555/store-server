@@ -1,21 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
-import { CategoriesService } from '../categories/categories.service';
-import { CategoriesController } from '../categories/categories.controller';
-import { Product } from '@/common/entities/product.entity';
-import { Category } from '@/common/entities/category.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
-  let service: ProductsService;
 
   beforeEach(async () => {
     const mockProductsService = {
       addProduct: jest.fn((dto) => ({ ...dto, id: 1 })),
       getProduct: jest.fn((id) => ({ id })),
+      getProducts: jest.fn(({}) => ({ items: [], limit: 10 })),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -24,7 +18,6 @@ describe('ProductsController', () => {
     }).compile();
 
     controller = module.get<ProductsController>(ProductsController);
-    service = module.get<ProductsService>(ProductsService);
   });
 
   it('should be defined', () => {
@@ -63,5 +56,11 @@ describe('ProductsController', () => {
     const req = { params: { id: 7 } };
     const product = await controller.getProduct(req.params.id);
     expect(product.id).toBe(7);
+  });
+
+  it('should return empty array of products with default limit', async () => {
+    const products = await controller.getProducts({});
+    expect(products.items).toEqual([]);
+    expect(products.limit).toBe(10);
   });
 });

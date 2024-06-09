@@ -8,14 +8,14 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { AddProductDto } from './dto/AddProduct.dto';
-import { EditProductDto } from './dto/EditProduct.dto';
+import { ProductsService } from '../services/products.service';
+import { AddProductDto } from '../dto/AddProduct.dto';
+import { EditProductDto } from '../dto/EditProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { GetProductsDto } from './dto/GetProductsDto';
+import { GetProductsDto } from '../dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
-import { GetProductDto } from './dto/GetProductDto';
+import { GetProductDto } from '../dto/GetProductDto';
 
 @ApiTags('admin/products')
 @Controller('admin/products')

@@ -1,14 +1,14 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { Product } from '../../common/entities/product.entity';
-import { AddProductDto } from './dto/AddProduct.dto';
-import { EditProductDto } from './dto/EditProduct.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { GetProductsDto } from './dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
-import { GetProductDto } from './dto/GetProductDto';
 import { Category } from '@/common/entities/category.entity';
+import { Product } from '@/common/entities/product.entity';
+import { GetProductsDto } from '../dto/GetProductsDto';
+import { GetProductDto } from '../dto/GetProductDto';
+import { AddProductDto } from '../dto/AddProduct.dto';
+import { EditProductDto } from '../dto/EditProduct.dto';
 
 @Injectable()
 export class ProductsService {

@@ -45,10 +45,52 @@ describe('ProductsController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should add a product', async () => {
-    expect(
-      controller.addProduct({
-        title: 'Test Product',
+  describe('getProducts controller', () => {
+    it('should return array of products with default limit and page', async () => {
+      const paginationResult = await controller.getProducts({});
+      expect(paginationResult.items).toBeInstanceOf(Array);
+      expect(paginationResult.limit).toBe(10);
+      expect(paginationResult.page).toBe(1);
+    });
+
+    it('should return paginated results', async () => {
+      const paginationResult = await controller.getProducts({
+        page: 2,
+        limit: 5,
+      });
+      expect(paginationResult.items).toBeInstanceOf(Array);
+      expect(paginationResult.limit).toBe(5);
+      expect(paginationResult.page).toBe(2);
+      expect(paginationResult.offset).toBe(5);
+    });
+
+    it('should test search query param', async () => {
+      const paginationResult = await controller.getProducts({
+        search: 'test',
+      });
+      expect(paginationResult.items).toBeInstanceOf(Array);
+      expect(paginationResult.items.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('addProduct controller', () => {
+    it('should add a product', async () => {
+      expect(
+        controller.addProduct({
+          title: 'Test Product',
+          price: 100,
+          categoryId: 1,
+          description: { short: 'Short description', full: 'Full description' },
+          purchasePriceInPLN: 100,
+          stock: 10,
+          taxRate: 23,
+          discountValueInPercent: 5,
+          discountValuePLN: null,
+        }),
+      ).toEqual({
+        id: expect.any(Number),
+        // title: 'Test Product',
+        title: expect.any(String),
         price: 100,
         categoryId: 1,
         description: { short: 'Short description', full: 'Full description' },
@@ -57,52 +99,15 @@ describe('ProductsController', () => {
         taxRate: 23,
         discountValueInPercent: 5,
         discountValuePLN: null,
-      }),
-    ).toEqual({
-      id: expect.any(Number),
-      // title: 'Test Product',
-      title: expect.any(String),
-      price: 100,
-      categoryId: 1,
-      description: { short: 'Short description', full: 'Full description' },
-      purchasePriceInPLN: 100,
-      stock: 10,
-      taxRate: 23,
-      discountValueInPercent: 5,
-      discountValuePLN: null,
+      });
     });
   });
 
-  it('should return product with id = 7', async () => {
-    const req = { params: { id: 7 } };
-    const product = await controller.getProduct(req.params.id);
-    expect(product.id).toBe(7);
-  });
-
-  it('should return array of products with default limit and page', async () => {
-    const paginationResult = await controller.getProducts({});
-    expect(paginationResult.items).toBeInstanceOf(Array);
-    expect(paginationResult.limit).toBe(10);
-    expect(paginationResult.page).toBe(1);
-  });
-
-  it('should test query params', async () => {
-    const paginationResult = await controller.getProducts({
-      page: 2,
-      limit: 5,
+  describe('getProduct controller', () => {
+    it('should return product with id = 7', async () => {
+      const req = { params: { id: 7 } };
+      const product = await controller.getProduct(req.params.id);
+      expect(product.id).toBe(7);
     });
-    console.log('result - ', paginationResult);
-    expect(paginationResult.items).toBeInstanceOf(Array);
-    expect(paginationResult.limit).toBe(5);
-    expect(paginationResult.page).toBe(2);
-    expect(paginationResult.offset).toBe(5);
-  });
-
-  it('should test search query param', async () => {
-    const paginationResult = await controller.getProducts({
-      search: 'test',
-    });
-    expect(paginationResult.items).toBeInstanceOf(Array);
-    expect(paginationResult.items.length).toBeGreaterThan(0);
   });
 });

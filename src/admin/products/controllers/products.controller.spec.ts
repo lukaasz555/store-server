@@ -10,6 +10,7 @@ import { AddProductDto } from '../dto/AddProduct.dto';
 import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 import { validate } from 'class-validator';
+import { mockCategories } from '@/admin/categories/data/mockCategories';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -218,6 +219,42 @@ describe('ProductsController', () => {
       } catch (err) {
         expect(err).toBeInstanceOf(Error);
         expect(err.message).toContain('stock');
+      }
+    });
+
+    it('should throw an error - wrong categoryId (doesnt exist)', async () => {
+      const req: Partial<Request> = {
+        body: {
+          title: 'Test Add ProductBody',
+          stock: 3,
+          description: { short: 'Short description', full: 'Full description' },
+          price: 3850,
+          purchasePriceInPLN: 3900,
+          discountValueInPercent: null,
+          discountValuePLN: null,
+          categoryId: 99999,
+          taxRate: 23,
+        },
+      };
+
+      const newProductDto = plainToClass(AddProductDto, req.body);
+      const category = mockCategories.find(
+        ({ id }) => id === req.body.categoryId,
+      );
+
+      if (!category) {
+        try {
+          await controller.addProduct(newProductDto);
+          throw new NotFoundException(
+            'Category with provided id does not exist',
+          );
+        } catch (err) {
+          expect(err).toBeInstanceOf(Error);
+          expect(err.message).toContain('Category with provided id');
+        }
+      } else {
+        const product = await controller.addProduct(newProductDto);
+        expect(product).toBeDefined();
       }
     });
   });

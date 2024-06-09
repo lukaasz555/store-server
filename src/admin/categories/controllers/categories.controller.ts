@@ -9,9 +9,9 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/CreateCategory.dto';
-import { UpdateCategoryDto } from './dto/UpdateCategoryDto.dto';
+import { CategoriesService } from '../services/categories.service';
+import { CreateCategoryDto } from '../dto/CreateCategory.dto';
+import { UpdateCategoryDto } from '../dto/UpdateCategoryDto.dto';
 
 @ApiTags('admin/categories')
 @Controller('categories')

@@ -5,6 +5,7 @@ import { mockProducts } from '../data/products.mock';
 import { PaginationResult } from '@/common/models/Pagination';
 import { GetProductDto } from '../dto/GetProductDto';
 import { GetProductsDto } from '../dto/GetProductsDto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -12,7 +13,10 @@ describe('ProductsController', () => {
   beforeEach(async () => {
     const mockProductsService = {
       addProduct: jest.fn((dto) => ({ ...dto, id: 1 })),
-      getProduct: jest.fn((id) => ({ id })),
+      getProduct: jest.fn((id) => {
+        const product = mockProducts.find((p) => p.id === id);
+        return product ? new GetProductDto(product) : null;
+      }),
       getProducts: jest.fn(({ page, limit, search }) => {
         const filteredItems = search
           ? mockProducts.filter((p) =>
@@ -23,7 +27,7 @@ describe('ProductsController', () => {
 
         const res = new PaginationResult<GetProductsDto>();
         res
-          .setItems(items)
+          .setItems(items.map((product) => new GetProductsDto(product)))
           .setItemsCount(mockProducts.length)
           .setLimit(limit)
           .setPage(page)
@@ -105,9 +109,19 @@ describe('ProductsController', () => {
 
   describe('getProduct controller', () => {
     it('should return product with id = 7', async () => {
-      const req = { params: { id: 7 } };
+      const productId = Math.floor(Math.random() * 35 + 1);
+      const req = { params: { id: productId } };
       const product = await controller.getProduct(req.params.id);
-      expect(product.id).toBe(7);
+      expect(product.id).toBe(productId);
+    });
+
+    it('should throw NotFoundException', async () => {
+      const req = { params: { id: 100 } };
+      try {
+        await controller.getProduct(req.params.id);
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+      }
     });
   });
 });

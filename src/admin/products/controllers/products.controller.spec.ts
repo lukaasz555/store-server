@@ -5,15 +5,19 @@ import { mockProducts } from '../data/products.mock';
 import { PaginationResult } from '@/common/models/Pagination';
 import { GetProductDto } from '../dto/GetProductDto';
 import { GetProductsDto } from '../dto/GetProductsDto';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ValidationPipe } from '@nestjs/common';
+import { AddProductDto } from '../dto/AddProduct.dto';
+import { plainToClass } from 'class-transformer';
+import { Request } from 'express';
+import { validate } from 'class-validator';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
 
   beforeEach(async () => {
     const mockProductsService = {
-      addProduct: jest.fn((dto) => ({ ...dto, id: 1 })),
-      getProduct: jest.fn((id) => {
+      addProduct: jest.fn((dto: AddProductDto) => ({ ...dto, id: 1 })),
+      getProduct: jest.fn((id: number) => {
         const product = mockProducts.find((p) => p.id === id);
         return product ? new GetProductDto(product) : null;
       }),
@@ -43,6 +47,10 @@ describe('ProductsController', () => {
     }).compile();
 
     controller = module.get<ProductsController>(ProductsController);
+
+    const app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
+    await app.init();
   });
 
   it('should be defined', () => {
@@ -77,36 +85,6 @@ describe('ProductsController', () => {
     });
   });
 
-  describe('addProduct controller', () => {
-    it('should add a product', async () => {
-      expect(
-        controller.addProduct({
-          title: 'Test Product',
-          price: 100,
-          categoryId: 1,
-          description: { short: 'Short description', full: 'Full description' },
-          purchasePriceInPLN: 100,
-          stock: 10,
-          taxRate: 23,
-          discountValueInPercent: 5,
-          discountValuePLN: null,
-        }),
-      ).toEqual({
-        id: expect.any(Number),
-        // title: 'Test Product',
-        title: expect.any(String),
-        price: 100,
-        categoryId: 1,
-        description: { short: 'Short description', full: 'Full description' },
-        purchasePriceInPLN: 100,
-        stock: 10,
-        taxRate: 23,
-        discountValueInPercent: 5,
-        discountValuePLN: null,
-      });
-    });
-  });
-
   describe('getProduct controller', () => {
     it('should return product with id = 7', async () => {
       const productId = Math.floor(Math.random() * 35 + 1);
@@ -121,6 +99,125 @@ describe('ProductsController', () => {
         await controller.getProduct(req.params.id);
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
+      }
+    });
+  });
+
+  describe('addProduct controller', () => {
+    it('should add a product with base data', async () => {
+      const req: Partial<Request> = {
+        body: {
+          title: 'Test Add Product',
+          stock: 5,
+          description: { short: 'Short description', full: 'Full description' },
+          price: 4200,
+          purchasePriceInPLN: 4000,
+          taxRate: 23,
+          discountValueInPercent: 5,
+          discountValuePLN: null,
+          categoryId: 1,
+        },
+      };
+      const addProductDto = plainToClass(AddProductDto, req.body);
+      const product = await controller.addProduct(addProductDto);
+
+      expect(product).toEqual({
+        id: expect.any(Number),
+        title: addProductDto.title,
+        price: addProductDto.price,
+        categoryId: addProductDto.categoryId,
+        description: addProductDto.description,
+        purchasePriceInPLN: addProductDto.purchasePriceInPLN,
+        stock: addProductDto.stock,
+        taxRate: addProductDto.taxRate,
+        discountValueInPercent: addProductDto.discountValueInPercent,
+        discountValuePLN: addProductDto.discountValuePLN,
+      });
+    });
+
+    it('should throw an error - invalid dto (missing taxRate, categoryId)', async () => {
+      const req: Partial<Request> = {
+        body: {
+          title: 'Test Add ProductBody',
+          stock: 3,
+          description: { short: 'Short description', full: 'Full description' },
+          price: 3850,
+          purchasePriceInPLN: 3900,
+          discountValueInPercent: null,
+          discountValuePLN: null,
+        },
+      };
+
+      const newProductDto = plainToClass(AddProductDto, req.body);
+
+      try {
+        const errors = await validate(newProductDto);
+        if (errors.length) {
+          throw new Error(errors.toString());
+        }
+        await controller.addProduct(newProductDto);
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect(err.message).toContain('taxRate');
+        expect(err.message).toContain('categoryId');
+      }
+    });
+
+    it('should throw an error - invalid dto (invalid price)', async () => {
+      const req: Partial<Request> = {
+        body: {
+          title: 'Test Add ProductBody',
+          stock: 3,
+          description: { short: 'Short description', full: 'Full description' },
+          price: '3850',
+          purchasePriceInPLN: 3900,
+          discountValueInPercent: null,
+          discountValuePLN: null,
+          categoryId: 1,
+          taxRate: 23,
+        },
+      };
+
+      const newProductDto = plainToClass(AddProductDto, req.body);
+
+      try {
+        const errors = await validate(newProductDto);
+        if (errors.length) {
+          throw new Error(errors.toString());
+        }
+        await controller.addProduct(newProductDto);
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect(err.message).toContain('price');
+      }
+    });
+
+    it('should throw an error - invalid dto (invalid stock)', async () => {
+      const req: Partial<Request> = {
+        body: {
+          title: 'Test Add ProductBody',
+          stock: '3',
+          description: { short: 'Short description', full: 'Full description' },
+          price: 3850,
+          purchasePriceInPLN: 3900,
+          discountValueInPercent: null,
+          discountValuePLN: null,
+          categoryId: 1,
+          taxRate: 23,
+        },
+      };
+
+      const newProductDto = plainToClass(AddProductDto, req.body);
+
+      try {
+        const errors = await validate(newProductDto);
+        if (errors.length) {
+          throw new Error(errors.toString());
+        }
+        await controller.addProduct(newProductDto);
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect(err.message).toContain('stock');
       }
     });
   });

@@ -51,7 +51,7 @@ import { CategoriesModule } from './admin/categories/categories.module';
   ],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(LoggingMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });

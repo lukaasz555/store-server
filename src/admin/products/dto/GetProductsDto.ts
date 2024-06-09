@@ -1,11 +1,11 @@
 import { Product } from '@/common/entities/product.entity';
 
 export class GetProductsDto {
-  id: number;
-  title: string;
-  stock: number;
-  price: number;
-  categoryId = 0;
+  readonly id: number;
+  readonly title: string;
+  readonly stock: number;
+  readonly price: number;
+  readonly categoryId: number;
 
   constructor(product: Product) {
     this.id = product.id;

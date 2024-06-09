@@ -10,34 +10,34 @@ import {
 export class AddProductDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  readonly title: string;
 
   @IsNumber()
   @IsNotEmpty()
-  stock: number;
+  readonly stock: number;
 
   @IsNotEmpty()
   @IsObject()
-  description: DescriptionType;
+  readonly description: DescriptionType;
 
   @IsNumber()
-  price: number;
+  readonly price: number;
 
   @IsNotEmpty()
-  purchasePriceInPLN: number;
+  readonly purchasePriceInPLN: number;
 
   @IsNotEmpty()
   @IsNumber()
-  taxRate: number;
+  readonly taxRate: number;
 
   @IsOptional()
   @IsNumber()
-  discountValueInPercent: number | null;
+  readonly discountValueInPercent: number | null;
 
   @IsOptional()
   @IsNumber()
-  discountValuePLN: number | null;
+  readonly discountValuePLN: number | null;
 
   @IsNumber()
-  categoryId: number;
+  readonly categoryId: number;
 }

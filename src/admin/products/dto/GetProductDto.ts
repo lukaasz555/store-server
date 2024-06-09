@@ -2,16 +2,16 @@
 import { DescriptionType, Product } from '@/common/entities/product.entity';
 
 export class GetProductDto {
-  id: number;
-  title: string;
-  stock: number;
-  purchasePriceInPLN: number;
-  taxRate: number;
-  price: number;
-  discountValueInPercent: number | null;
-  discountValuePLN: number | null;
-  categoryId = 0;
-  description: DescriptionType = {};
+  readonly id: number;
+  readonly title: string;
+  readonly stock: number;
+  readonly purchasePriceInPLN: number;
+  readonly taxRate: number;
+  readonly price: number;
+  readonly discountValueInPercent: number | null;
+  readonly discountValuePLN: number | null;
+  readonly categoryId: number;
+  readonly description: DescriptionType = {};
 
   constructor(product: Product) {
     this.id = product.id;

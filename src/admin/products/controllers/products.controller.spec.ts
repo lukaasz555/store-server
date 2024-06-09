@@ -12,6 +12,18 @@ import { Request } from 'express';
 import { validate } from 'class-validator';
 import { mockCategories } from '@/admin/categories/data/mockCategories';
 
+const reqBody = {
+  title: 'Test Add Product',
+  stock: 5,
+  description: { short: 'Short description', full: 'Full description' },
+  price: 4200,
+  purchasePriceInPLN: 4000,
+  taxRate: 23,
+  discountValueInPercent: 5,
+  discountValuePLN: null,
+  categoryId: 1,
+};
+
 describe('ProductsController', () => {
   let controller: ProductsController;
 
@@ -87,7 +99,7 @@ describe('ProductsController', () => {
   });
 
   describe('getProduct controller', () => {
-    it('should return product with id = 7', async () => {
+    it('should return product with provided id', async () => {
       const productId = Math.floor(Math.random() * 35 + 1);
       const req = { params: { id: productId } };
       const product = await controller.getProduct(req.params.id);
@@ -95,7 +107,7 @@ describe('ProductsController', () => {
     });
 
     it('should throw NotFoundException', async () => {
-      const req = { params: { id: 100 } };
+      const req = { params: { id: 9999 } };
       try {
         await controller.getProduct(req.params.id);
       } catch (e) {
@@ -107,17 +119,7 @@ describe('ProductsController', () => {
   describe('addProduct controller', () => {
     it('should add a product with base data', async () => {
       const req: Partial<Request> = {
-        body: {
-          title: 'Test Add Product',
-          stock: 5,
-          description: { short: 'Short description', full: 'Full description' },
-          price: 4200,
-          purchasePriceInPLN: 4000,
-          taxRate: 23,
-          discountValueInPercent: 5,
-          discountValuePLN: null,
-          categoryId: 1,
-        },
+        body: reqBody,
       };
       const addProductDto = plainToClass(AddProductDto, req.body);
       const product = await controller.addProduct(addProductDto);
@@ -137,17 +139,12 @@ describe('ProductsController', () => {
     });
 
     it('should throw an error - invalid dto (missing taxRate, categoryId)', async () => {
+      const bodyCopy = JSON.parse(JSON.stringify(reqBody));
       const req: Partial<Request> = {
-        body: {
-          title: 'Test Add ProductBody',
-          stock: 3,
-          description: { short: 'Short description', full: 'Full description' },
-          price: 3850,
-          purchasePriceInPLN: 3900,
-          discountValueInPercent: null,
-          discountValuePLN: null,
-        },
+        body: bodyCopy,
       };
+      delete req.body.taxRate;
+      delete req.body.categoryId;
 
       const newProductDto = plainToClass(AddProductDto, req.body);
 
@@ -165,23 +162,14 @@ describe('ProductsController', () => {
     });
 
     it('should throw an error - invalid dto (invalid price)', async () => {
+      const bodyCopy = JSON.parse(JSON.stringify(reqBody));
+      bodyCopy.price = String(bodyCopy.price);
       const req: Partial<Request> = {
-        body: {
-          title: 'Test Add ProductBody',
-          stock: 3,
-          description: { short: 'Short description', full: 'Full description' },
-          price: '3850',
-          purchasePriceInPLN: 3900,
-          discountValueInPercent: null,
-          discountValuePLN: null,
-          categoryId: 1,
-          taxRate: 23,
-        },
+        body: bodyCopy,
       };
 
-      const newProductDto = plainToClass(AddProductDto, req.body);
-
       try {
+        const newProductDto = plainToClass(AddProductDto, req.body);
         const errors = await validate(newProductDto);
         if (errors.length) {
           throw new Error(errors.toString());
@@ -194,19 +182,12 @@ describe('ProductsController', () => {
     });
 
     it('should throw an error - invalid dto (invalid stock)', async () => {
+      const bodyCopy = JSON.parse(JSON.stringify(reqBody));
       const req: Partial<Request> = {
-        body: {
-          title: 'Test Add ProductBody',
-          stock: '3',
-          description: { short: 'Short description', full: 'Full description' },
-          price: 3850,
-          purchasePriceInPLN: 3900,
-          discountValueInPercent: null,
-          discountValuePLN: null,
-          categoryId: 1,
-          taxRate: 23,
-        },
+        body: bodyCopy,
       };
+
+      req.body.stock = String(req.body.stock);
 
       const newProductDto = plainToClass(AddProductDto, req.body);
 
@@ -223,19 +204,12 @@ describe('ProductsController', () => {
     });
 
     it('should throw an error - wrong categoryId (doesnt exist)', async () => {
+      const bodyCopy = JSON.parse(JSON.stringify(reqBody));
       const req: Partial<Request> = {
-        body: {
-          title: 'Test Add ProductBody',
-          stock: 3,
-          description: { short: 'Short description', full: 'Full description' },
-          price: 3850,
-          purchasePriceInPLN: 3900,
-          discountValueInPercent: null,
-          discountValuePLN: null,
-          categoryId: 99999,
-          taxRate: 23,
-        },
+        body: bodyCopy,
       };
+
+      req.body.categoryId = 9999;
 
       const newProductDto = plainToClass(AddProductDto, req.body);
       const category = mockCategories.find(
@@ -257,5 +231,41 @@ describe('ProductsController', () => {
         expect(product).toBeDefined();
       }
     });
+
+    it('should throw an error - wrong categoryId (is deleted)', async () => {
+      const bodyCopy = JSON.parse(JSON.stringify(reqBody));
+      const req: Partial<Request> = {
+        body: bodyCopy,
+      };
+      req.body.categoryId = 5;
+
+      const newProductDto = plainToClass(AddProductDto, req.body);
+      const category = mockCategories.find(
+        ({ id }) => id === req.body.categoryId,
+      );
+
+      if (category.deletedAt) {
+        try {
+          await controller.addProduct(newProductDto);
+          throw new NotFoundException(
+            'Category with provided id does not exist (is already deleted)',
+          );
+        } catch (err) {
+          expect(err).toBeInstanceOf(Error);
+          expect(err.message).toContain('Category with provided id');
+        }
+      } else {
+        const product = await controller.addProduct(newProductDto);
+        expect(product).toBeDefined();
+      }
+    });
   });
+
+  // describe('deleteProduct controller', () => {
+  // TODO: Implement deleteProduct tests
+  // });
+
+  // describe('updateProduct controller', () => {
+  //   TODO: Implement updateProduct tests
+  // });
 });

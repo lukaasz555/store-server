@@ -52,6 +52,10 @@ describe('ProductsController', () => {
 
         return res;
       }),
+      deleteProduct: jest.fn((id: number) => {
+        const updatedProducts = mockProducts.filter((p) => p.id !== id);
+        return updatedProducts;
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -261,9 +265,20 @@ describe('ProductsController', () => {
     });
   });
 
-  // describe('deleteProduct controller', () => {
-  // TODO: Implement deleteProduct tests
-  // });
+  describe('removeProduct controller', () => {
+    it('should delete prd', async () => {
+      const productId = Math.floor(Math.random() * 35 + 1);
+      const product = await controller.getProduct(productId);
+
+      if (!product) {
+        expect(product).toBeNull();
+        throw new NotFoundException('Product with provided id does not exist');
+      } else {
+        const products = await controller.deleteProduct(productId);
+        expect(products).not.toContain(product);
+      }
+    });
+  });
 
   // describe('updateProduct controller', () => {
   //   TODO: Implement updateProduct tests

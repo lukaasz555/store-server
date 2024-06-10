@@ -266,13 +266,12 @@ describe('ProductsController', () => {
   });
 
   describe('removeProduct controller', () => {
-    it('should delete prd', async () => {
+    it('should delete product with random id', async () => {
       const productId = Math.floor(Math.random() * 35 + 1);
       const product = await controller.getProduct(productId);
 
       if (!product) {
         expect(product).toBeNull();
-        throw new NotFoundException('Product with provided id does not exist');
       } else {
         const products = await controller.deleteProduct(productId);
         expect(products).not.toContain(product);

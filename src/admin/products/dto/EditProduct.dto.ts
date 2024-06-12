@@ -4,32 +4,32 @@ import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 export class EditProductDto {
   @IsString()
   @IsOptional()
-  title: string;
+  readonly title: string;
 
   @IsNumber()
   @IsOptional()
-  stock: number;
+  readonly stock: number;
 
   @IsObject()
   @IsOptional()
-  description: DescriptionType;
+  readonly description: DescriptionType;
 
   @IsOptional()
-  price: number;
-
-  @IsOptional()
-  @IsNumber()
-  taxRate: number;
+  readonly price: number;
 
   @IsOptional()
   @IsNumber()
-  discountValueInPercent: number | null;
+  readonly taxRate: number;
 
   @IsOptional()
   @IsNumber()
-  discountValuePLN: number | null;
+  readonly discountValueInPercent: number | null;
 
   @IsOptional()
   @IsNumber()
-  discountValueEUR: number | null;
+  readonly discountValuePLN: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  readonly discountValueEUR: number | null;
 }

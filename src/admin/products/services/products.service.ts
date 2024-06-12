@@ -1,18 +1,21 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { Product } from '../../common/entities/product.entity';
-import { AddProductDto } from './dto/AddProduct.dto';
-import { EditProductDto } from './dto/EditProduct.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { GetProductsDto } from './dto/GetProductsDto';
 import { PaginationResult } from '@/common/models/Pagination';
 import { QueryParams } from '@/common/models/QueryParams';
-import { GetProductDto } from './dto/GetProductDto';
+import { Category } from '@/common/entities/category.entity';
+import { Product } from '@/common/entities/product.entity';
+import { GetProductsDto } from '../dto/GetProductsDto';
+import { GetProductDto } from '../dto/GetProductDto';
+import { AddProductDto } from '../dto/AddProduct.dto';
+import { EditProductDto } from '../dto/EditProduct.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private productsRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   async getProducts(
@@ -57,6 +60,14 @@ export class ProductsService {
 
   async addProduct(addProductDto: AddProductDto): Promise<void> {
     const newProduct = this.productsRepository.create(addProductDto);
+    const category = await this.categoryRepository.findOne({
+      where: { id: addProductDto.categoryId },
+    });
+
+    if (!category) throw new NotFoundException('Category not found');
+
+    newProduct.category = category;
+
     await this.productsRepository.save({
       ...newProduct,
       pricesHistory: [],
@@ -66,12 +77,19 @@ export class ProductsService {
   async updateProduct(
     id: number,
     editProductDto: EditProductDto,
-  ): Promise<void> {
+  ): Promise<GetProductDto> {
     const product = await this.productsRepository.findOneBy({
       id,
     });
     if (!product) throw new NotFoundException('Product not found');
     await this.productsRepository.update(id, editProductDto);
+
+    const updatedProduct = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+    const dto = new GetProductDto(updatedProduct);
+    return dto;
   }
 
   async deleteProduct(id: number): Promise<void> {

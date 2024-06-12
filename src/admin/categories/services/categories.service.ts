@@ -3,8 +3,8 @@ import { Product } from '@/common/entities/product.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCategoryDto } from './dto/CreateCategory.dto';
-import { UpdateCategoryDto } from './dto/UpdateCategoryDto.dto';
+import { UpdateCategoryDto } from '../dto/UpdateCategoryDto.dto';
+import { CreateCategoryDto } from '../dto/CreateCategory.dto';
 
 @Injectable()
 export class CategoriesService {

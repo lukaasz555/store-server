@@ -77,12 +77,19 @@ export class ProductsService {
   async updateProduct(
     id: number,
     editProductDto: EditProductDto,
-  ): Promise<void> {
+  ): Promise<GetProductDto> {
     const product = await this.productsRepository.findOneBy({
       id,
     });
     if (!product) throw new NotFoundException('Product not found');
     await this.productsRepository.update(id, editProductDto);
+
+    const updatedProduct = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+    const dto = new GetProductDto(updatedProduct);
+    return dto;
   }
 
   async deleteProduct(id: number): Promise<void> {

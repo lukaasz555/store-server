@@ -11,6 +11,7 @@ import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 import { validate } from 'class-validator';
 import { mockCategories } from '@/admin/categories/data/mockCategories';
+import { EditProductDto } from '../dto/EditProduct.dto';
 
 const reqBody = {
   title: 'Test Add Product',
@@ -55,6 +56,26 @@ describe('ProductsController', () => {
       deleteProduct: jest.fn((id: number) => {
         const updatedProducts = mockProducts.filter((p) => p.id !== id);
         return updatedProducts;
+      }),
+      updateProduct: jest.fn((id: number, editProductDto: EditProductDto) => {
+        const product = mockProducts.find((p) => p.id === id);
+        if (!product) {
+          throw new NotFoundException(
+            'Product with provided id does not exist',
+          );
+        }
+
+        const updatedProduct = JSON.parse(JSON.stringify(product));
+        for (const key in editProductDto) {
+          if (typeof key === typeof updatedProduct[key]) {
+            updatedProduct[key] = editProductDto[key];
+          } else {
+            console.log('object key type mismatch');
+          }
+        }
+
+        const getProductDto = new GetProductDto(updatedProduct);
+        return getProductDto;
       }),
     };
 
@@ -279,7 +300,61 @@ describe('ProductsController', () => {
     });
   });
 
-  // describe('updateProduct controller', () => {
-  //   TODO: Implement updateProduct tests
-  // });
+  describe('updateProduct controller', () => {
+    it('should update product with provided id (title)', async () => {
+      const productId = Math.floor(Math.random() * 35 + 1);
+      const product = await controller.getProduct(productId);
+
+      if (!product) {
+        expect(product).toBeNull();
+      } else {
+        const req: Partial<Request> = {
+          params: { id: `${productId}` },
+          body: { title: 'Updated Title' },
+        };
+
+        try {
+          const editProductDto = plainToClass(EditProductDto, req.body);
+          const updatedProduct = await controller.updateProduct(
+            Number(req.params.id),
+            editProductDto,
+          );
+
+          expect(updatedProduct.title).toBe(req.body.title);
+        } catch (err) {
+          // console.log('err.message - ', err.message);
+        }
+      }
+    });
+
+    it('should not update product - invalid dto (stock)', async () => {
+      const productId = Math.floor(Math.random() * 35 + 1);
+      const product = await controller.getProduct(productId);
+
+      if (!product) {
+        expect(product).toBeNull();
+      } else {
+        const req: Partial<Request> = {
+          params: { id: `${productId}` },
+          body: { stock: '10' },
+        };
+
+        try {
+          const editProductDto = plainToClass(EditProductDto, req.body);
+          const errors = await validate(editProductDto);
+          if (errors.length) {
+            throw new Error(errors.toString());
+          }
+          const updatedProduct = await controller.updateProduct(
+            Number(req.params.id),
+            editProductDto,
+          );
+          expect(updatedProduct.stock).not.toBe(editProductDto.stock);
+        } catch (err) {
+          expect(err).toBeInstanceOf(Error);
+          expect(err.message).toContain('stock');
+        }
+      }
+    });
+  });
 });

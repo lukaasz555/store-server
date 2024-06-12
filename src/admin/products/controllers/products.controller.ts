@@ -39,10 +39,10 @@ export class ProductsController {
   }
 
   @Put(':id')
-  editProduct(
+  updateProduct(
     @Param('id') id: number,
     @Body() editProductDto: EditProductDto,
-  ): Promise<void> {
+  ): Promise<GetProductDto> {
     return this.productsService.updateProduct(id, editProductDto);
   }
 

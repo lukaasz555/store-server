@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -18,6 +19,9 @@ export class Category {
   @ManyToOne(() => Category, { nullable: true })
   @JoinColumn({ name: 'parentCategoryId' })
   parentCategory: Category;
+
+  @OneToMany(() => Category, (category) => category.parentCategory)
+  subcategories: Category[];
 
   @DeleteDateColumn()
   deletedAt?: Date;
